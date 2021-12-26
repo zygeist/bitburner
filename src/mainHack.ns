@@ -16,6 +16,7 @@ const settings = {
     grow: 0.004,
     weaken: 0.05,
   },
+  verbose: false,
 }
 
 function getItem(key) {
@@ -165,7 +166,8 @@ export async function main(ns) {
     }
 
     if (!serverMap || serverMap.lastUpdate < new Date().getTime() - settings.mapRefreshInterval) {
-      ns.tprint(`[${localeHHMMSS()}] Spawning spider.ns`)
+      if (settings.verbose == true) 
+        ns.tprint(`[${localeHHMMSS()}] Spawning spider.ns`)
       ns.spawn('spider.ns', 1, 'mainHack.ns')
       ns.exit()
       return
@@ -206,6 +208,7 @@ export async function main(ns) {
     }
     weakenCycles = growCycles
 
+    if (settings.verbose == true) {
     ns.tprint(
       `[${localeHHMMSS()}] Selected ${bestTarget} for a target. Planning to ${action} the server. Will wake up around ${localeHHMMSS(
         new Date().getTime() + weakenTime + 300
@@ -220,7 +223,7 @@ export async function main(ns) {
       `[${localeHHMMSS()}] Time to: hack: ${convertMSToHHMMSS(hackTime)}; grow: ${convertMSToHHMMSS(growTime)}; weaken: ${convertMSToHHMMSS(weakenTime)}`
     )
     ns.tprint(`[${localeHHMMSS()}] Delays: ${convertMSToHHMMSS(hackDelay)} for hacks, ${convertMSToHHMMSS(growDelay)} for grows`)
-
+  }
     if (action === 'weaken') {
       if (settings.changes.weaken * weakenCycles > securityLevel - serverMap.servers[bestTarget].minSecurityLevel) {
         weakenCycles = Math.ceil((securityLevel - serverMap.servers[bestTarget].minSecurityLevel) / settings.changes.weaken)
@@ -234,10 +237,12 @@ export async function main(ns) {
         growCycles = 0
       }
 
+      if (settings.verbose == true) {
       ns.tprint(
         `[${localeHHMMSS()}] Cycles ratio: ${growCycles} grow cycles; ${weakenCycles} weaken cycles; expected security reduction: ${Math.floor(settings.changes.weaken * weakenCycles * 1000) / 1000
         }`
       )
+    }
 
       for (let i = 0; i < hackableServers.length; i++) {
         const server = serverMap.servers[hackableServers[i]]
@@ -259,7 +264,9 @@ export async function main(ns) {
       weakenCycles = weakenCyclesForGrow(growCycles)
       growCycles -= weakenCycles
 
+      if (settings.verbose == true) {
       ns.tprint(`[${localeHHMMSS()}] Cycles ratio: ${growCycles} grow cycles; ${weakenCycles} weaken cycles`)
+    }
 
       for (let i = 0; i < hackableServers.length; i++) {
         const server = serverMap.servers[hackableServers[i]]
@@ -298,7 +305,9 @@ export async function main(ns) {
         hackCycles -= Math.ceil((weakenCycles * 1.75) / 1.7)
       }
 
+      if (settings.verbose == true) {
       ns.tprint(`[${localeHHMMSS()}] Cycles ratio: ${hackCycles} hack cycles; ${growCycles} grow cycles; ${weakenCycles} weaken cycles`)
+      }
 
       for (let i = 0; i < hackableServers.length; i++) {
         const server = serverMap.servers[hackableServers[i]]
